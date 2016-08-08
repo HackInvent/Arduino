@@ -19,7 +19,7 @@
     cores. Updates are also downloaded from a different URL and the original package_index
     is ignored.
   -->
-  <!--<property name="RC_build" value="true" />-->
+  <property name="RC_build" value="true" />
 
   <!-- Main url for boards and libraries repository -->
   <property name="library_index_url" value="http://downloads.arduino.cc/libraries/library_index.json" />
