@@ -32,16 +32,32 @@ package cc.arduino.contributions.packages;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import cc.arduino.Constants;
+
 public class PackageIndexFilenameFilter implements FilenameFilter {
 
-  private final String defaultPackageIndexFileName;
+  boolean acceptTestPackages = false;
 
-  public PackageIndexFilenameFilter(String defaultPackageIndexFileName) {
-    this.defaultPackageIndexFileName = defaultPackageIndexFileName;
+  public PackageIndexFilenameFilter() {
+  }
+
+  public PackageIndexFilenameFilter(boolean acceptTest) {
+    acceptTestPackages = acceptTest;
   }
 
   @Override
   public boolean accept(File file, String name) {
-    return new File(file, name).isFile() && !defaultPackageIndexFileName.equals(name) && name.startsWith("package_") && name.endsWith("_index.json");
+    if (Constants.INDEX_FILE_NAME.equals(name) || Constants.RC_INDEX_FILE_NAME.equals(name))
+      return false;
+    if (acceptTestPackages) {
+      if (!name.startsWith("package_") && !name.startsWith("test_package_"))
+        return false;
+    } else {
+      if (!name.startsWith("package_"))
+        return false;
+    }
+    if (!name.endsWith("_index.json"))
+      return false;
+    return new File(file, name).isFile();
   }
 }

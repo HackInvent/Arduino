@@ -337,7 +337,7 @@ public class ContributionInstaller {
 
   public synchronized void deleteUnknownFiles(List<String> downloadedPackageIndexFiles) throws IOException {
     File preferencesFolder = BaseNoGui.indexer.getIndexFile(".").getParentFile();
-    File[] additionalPackageIndexFiles = preferencesFolder.listFiles(new PackageIndexFilenameFilter(Constants.DEFAULT_INDEX_FILE_NAME));
+    File[] additionalPackageIndexFiles = preferencesFolder.listFiles(new PackageIndexFilenameFilter());
     if (additionalPackageIndexFiles == null) {
       return;
     }

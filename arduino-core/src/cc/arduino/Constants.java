@@ -29,8 +29,11 @@
 
 package cc.arduino;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
+import processing.app.BaseNoGui;
 
 public class Constants {
 
@@ -38,7 +41,10 @@ public class Constants {
   public static final String PREF_BOARDS_MANAGER_ADDITIONAL_URLS = "boardsmanager.additional.urls";
   public static final String PREF_CONTRIBUTIONS_TRUST_ALL = "contributions.trust.all";
 
-  public static final String DEFAULT_INDEX_FILE_NAME = "package_index.json";
+  public static final String RC_INDEX_FILE_NAME = "package_index_staging.json";
+  public static final String INDEX_FILE_NAME = "package_index.json";
+  public static final String DEFAULT_INDEX_FILE_NAME;
+  public static final boolean IS_RC;
   public static final List<String> PROTECTED_PACKAGE_NAMES = Arrays.asList("arduino", "Intel");
 
   public static final String LIBRARY_DEVELOPMENT_FLAG_FILE = ".development";
@@ -69,11 +75,22 @@ public class Constants {
   public static final List<String> LIBRARY_MANDATORY_PROPERTIES = Arrays.asList("name", "version", "author", "maintainer", "sentence", "paragraph", "url");
 
   static {
+    // Check for RC release
+    File distFolder = BaseNoGui.getContentFile("dist");
+    File rcPackageJsonFile = new File(distFolder, RC_INDEX_FILE_NAME);
+    if (rcPackageJsonFile.exists()) {
+      DEFAULT_INDEX_FILE_NAME = RC_INDEX_FILE_NAME;
+      IS_RC = true;
+    } else {
+      DEFAULT_INDEX_FILE_NAME = INDEX_FILE_NAME;
+      IS_RC = false;
+    }
+
     String extenalPackageIndexUrl = System.getProperty("PACKAGE_INDEX_URL");
     if (extenalPackageIndexUrl != null && !"".equals(extenalPackageIndexUrl)) {
       PACKAGE_INDEX_URL = extenalPackageIndexUrl;
     } else {
-      PACKAGE_INDEX_URL = "http://downloads.arduino.cc/packages/package_index.json";
+      PACKAGE_INDEX_URL = "http://downloads.arduino.cc/packages/" + Constants.DEFAULT_INDEX_FILE_NAME;
     }
 
     String externalLibraryIndexUrl = System.getProperty("LIBRARY_INDEX_URL");

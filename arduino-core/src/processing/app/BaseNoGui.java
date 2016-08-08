@@ -608,9 +608,11 @@ public class BaseNoGui {
   }
 
   static public void initPackages() throws Exception {
+    if (Constants.IS_RC)
+      System.out.println("WARNING: This is is a TEST release of the Arduino IDE");
     indexer = new ContributionsIndexer(BaseNoGui.getSettingsFolder(), BaseNoGui.getPlatform(), new GPGDetachedSignatureVerifier());
-    File indexFile = indexer.getIndexFile("package_index.json");
-    File defaultPackageJsonFile = new File(getContentFile("dist"), "package_index.json");
+    File indexFile = indexer.getIndexFile(Constants.DEFAULT_INDEX_FILE_NAME);
+    File defaultPackageJsonFile = new File(getContentFile("dist"), Constants.DEFAULT_INDEX_FILE_NAME);
     if (!indexFile.isFile() || (defaultPackageJsonFile.isFile() && defaultPackageJsonFile.lastModified() > indexFile.lastModified())) {
       FileUtils.copyFile(defaultPackageJsonFile, indexFile);
     } else if (!indexFile.isFile()) {
@@ -624,8 +626,8 @@ public class BaseNoGui {
       }
     }
 
-    File indexSignatureFile = indexer.getIndexFile("package_index.json.sig");
-    File defaultPackageJsonSignatureFile = new File(getContentFile("dist"), "package_index.json.sig");
+    File indexSignatureFile = indexer.getIndexFile(Constants.DEFAULT_INDEX_FILE_NAME + ".sig");
+    File defaultPackageJsonSignatureFile = new File(getContentFile("dist"), Constants.DEFAULT_INDEX_FILE_NAME + ".sig");
     if (!indexSignatureFile.isFile() || (defaultPackageJsonSignatureFile.isFile() && defaultPackageJsonSignatureFile.lastModified() > indexSignatureFile.lastModified())) {
       FileUtils.copyFile(defaultPackageJsonSignatureFile, indexSignatureFile);
     }

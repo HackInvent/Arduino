@@ -8,9 +8,27 @@
     <format property="BUILD_DATE" pattern="yyyy/MM/dd hh:mm"/>
   </tstamp>
 
+  <!-- Set for RC releases -->
+  <!--
+    When this property is set the build script will make a Release Canditate for testing purposes.
+
+    The RC build use a different package_index file called package_index_staging.json.
+
+    When the IDE detects the presence of the staging index in his dist/ folder then this
+    file is used instead of the main public index to allow testing of new AVR-bundled
+    cores. Updates are also downloaded from a different URL and the original package_index
+    is ignored.
+  -->
+  <!--<property name="RC_build" value="true" />-->
+
   <!-- Main url for boards and libraries repository -->
   <property name="library_index_url" value="http://downloads.arduino.cc/libraries/library_index.json" />
-  <property name="package_index_url" value="http://downloads.arduino.cc/packages/package_index.json" />
+  <condition property="package_index_filename"
+    value="package_index_staging.json"
+     else="package_index.json">
+    <isset property="RC_build"/>
+  </condition>
+  <property name="package_index_url" value="http://downloads.arduino.cc/packages/${package_index_filename}" />
 
   <!-- Sets properties for macosx/windows/linux depending on current system -->
   <condition property="platform" value="macosx-old">
@@ -274,7 +292,7 @@
     </loadfile>
 
     <!-- figure out the latest AVR core version number in package_index.json -->
-    <loadfile srcfile="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json" property="revision.avr.index">
+    <loadfile srcfile="${staging_folder}/work/${staging_hardware_folder}/../dist/${package_index_filename}" property="revision.avr.index">
       <filterchain>
         <tokenfilter>
           <linetokenizer />
@@ -295,8 +313,8 @@
       </or>
     </condition>
     <fail unless="revision.avr.ok">
-      Mismatching versions for bundled AVR core and package_index.json.
-      Please check your platform.txt and package_index.json.
+      Mismatching versions for bundled AVR core and ${package_index_filename}.
+      Please check your platform.txt and ${package_index_filename}.
     </fail>
 
     <!-- figure out the IDE version number -->
@@ -1170,15 +1188,21 @@
   <target name="package-library-index-json-bundle">
     <mkdir dir="${staging_folder}/work/${staging_hardware_folder}/../dist/"/>
 
+    <!-- Remove all package_index_staging leftovers -->
+    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json" />
+    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json.sig" />
+    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index_staging.json" />
+    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index_staging.json.sig" />
+
     <get src="${package_index_url}.gz"
-         dest="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json.gz"
+         dest="${staging_folder}/work/${staging_hardware_folder}/../dist/${package_index_filename}.gz"
          verbose="true" skipexisting="false" />
-    <gunzip src ="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json.gz"
+    <gunzip src ="${staging_folder}/work/${staging_hardware_folder}/../dist/${package_index_filename}.gz"
             dest="${staging_folder}/work/${staging_hardware_folder}/../dist/"/>
-    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json.gz"/>
+    <delete file="${staging_folder}/work/${staging_hardware_folder}/../dist/${package_index_filename}.gz"/>
 
     <get src="${package_index_url}.sig"
-         dest="${staging_folder}/work/${staging_hardware_folder}/../dist/package_index.json.sig"
+         dest="${staging_folder}/work/${staging_hardware_folder}/../dist/${package_index_filename}.sig"
          verbose="true" skipexisting="false" />
 
     <get src="${library_index_url}.gz"
